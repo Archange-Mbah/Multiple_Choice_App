@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:multiple_choice_trainer/services/service.dart';
 
+//Diese Seite zeigt detaillierte Statistiken für ein bestimmtes Modul an
 class DetailedModuleStatisticsPage extends StatefulWidget {
   final String userId;
   final int moduleId; // Typ muss mit deiner Datenbank übereinstimmen

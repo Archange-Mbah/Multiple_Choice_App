@@ -19,7 +19,8 @@ class _AuthPageState extends State<AuthPage> {
   final AuthService _authService = AuthService();
   final supabase = SupabaseService();
 
-  final FocusNode _keyboardFocusNode = FocusNode(); // Globaler Fokus für Enter-Taste
+  final FocusNode _keyboardFocusNode =
+      FocusNode(); // Globaler Fokus für Enter-Taste
   bool _isPasswordVisible = false;
   String _currentLanguage = 'de';
   bool _emailFieldError = false;
@@ -41,7 +42,7 @@ class _AuthPageState extends State<AuthPage> {
       'invalidData': 'Invalid email or password',
       'welcomeBack': 'Welcome Back',
       'signInToAccount': 'Sign in to your account',
-      'emailT' : 'Enter your email',
+      'emailT': 'Enter your email',
       'passwordT': 'Enter your password',
     },
     'de': {
@@ -56,15 +57,16 @@ class _AuthPageState extends State<AuthPage> {
       'invalidData': 'Ungültige E-Mail oder Passwort',
       'welcomeBack': 'Willkommen zurück',
       'signInToAccount': 'Melden Sie sich bei Ihrem Konto an',
-      'emailT' : 'Geben Sie Ihre Emailadresse ein',
+      'emailT': 'Geben Sie Ihre Emailadresse ein',
       'passwordT': 'Geben Sie Ihr Passwort ein',
     },
   };
-
+  // this function returns the translation of a given key
   String getTranslation(String key) {
     return _translations[_currentLanguage]?[key] ?? key;
   }
 
+  // Validierung der Eingabefelder
   void _validateFields() {
     setState(() {
       _emailFieldError = _emailController.text.isEmpty;
@@ -72,6 +74,7 @@ class _AuthPageState extends State<AuthPage> {
     });
   }
 
+  // Validierung der E-Mail-Adresse
   void _validateEmail(String value) {
     setState(() {
       _isEmailValid = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value);
@@ -80,20 +83,24 @@ class _AuthPageState extends State<AuthPage> {
       }
     });
   }
-
+  
+  // Validierung des Passworts
   void _validatePassword(String value) {
     setState(() {
       _passwordFieldError = value.isEmpty;
     });
   }
 
+  // Auslösen der E-Mail-Validierung
   void _triggerEmailValidation() {
     setState(() {
       _emailValidationTriggered = true;
-      _isEmailValid = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(_emailController.text);
+      _isEmailValid =
+          RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(_emailController.text);
     });
   }
 
+   // Anmeldung
   Future<void> _handleSignIn() async {
     if (_isSubmitting) return; // Verhindert mehrfaches Auslösen der Anmeldung
 
@@ -148,28 +155,29 @@ class _AuthPageState extends State<AuthPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.purple.shade50, // Hintergrundfarbe angepasst
+      backgroundColor: const Color.fromARGB(
+          255, 238, 233, 244), // Hintergrundfarbe angepasst
       body: Column(
         children: [
-
           // Fester Bereich oben für Überschrift
           AppBar(
             automaticallyImplyLeading: false,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const Icon(Icons.school, color: Colors.white, size: 40),
+                const Icon(Icons.school, color: Colors.white, size: 30),
                 const SizedBox(width: 8),
                 Text(
                   getTranslation('title'),
-                  style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold ,   color: Colors.white),
-
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ],
             ),
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: const Color.fromRGBO(69, 39, 160, 1),
           ),
-
 
           const SizedBox(height: 80),
 
@@ -178,7 +186,8 @@ class _AuthPageState extends State<AuthPage> {
             child: RawKeyboardListener(
               focusNode: _keyboardFocusNode, // Globale Tastenerkennung
               onKey: (event) {
-                if (event is RawKeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter) {
+                if (event is RawKeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.enter) {
                   _handleSignIn(); // Anmelden bei Enter-Taste
                 }
               },
@@ -195,7 +204,7 @@ class _AuthPageState extends State<AuthPage> {
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: const Color.fromRGBO(69, 39, 160, 1),
                         ),
                       ),
                       Text(
@@ -219,7 +228,8 @@ class _AuthPageState extends State<AuthPage> {
                               onChanged: (value) {
                                 _validateEmail(value);
                               },
-                              onEditingComplete: () => _triggerEmailValidation(),
+                              onEditingComplete: () =>
+                                  _triggerEmailValidation(),
                               decoration: InputDecoration(
                                 labelText: getTranslation('email'),
                                 hintText: getTranslation('emailT'),
@@ -231,19 +241,23 @@ class _AuthPageState extends State<AuthPage> {
                                 errorText: !_isEmailValid
                                     ? getTranslation('invalidEmail')
                                     : (_emailFieldError
-                                    ? getTranslation('emptyFieldError')
-                                    : null),
-                                prefixIcon: const Icon(Icons.email, color: Colors.deepPurple),
+                                        ? getTranslation('emptyFieldError')
+                                        : null),
+                                prefixIcon: const Icon(Icons.email,
+                                    color:
+                                        const Color.fromRGBO(69, 39, 160, 1)),
                                 suffixIcon: _emailController.text.isNotEmpty
                                     ? IconButton(
-                                  icon: const Icon(Icons.clear, color: Colors.deepPurple),
-                                  onPressed: () {
-                                    setState(() {
-                                      _emailController.clear();
-                                      _validateEmail('');
-                                    });
-                                  },
-                                )
+                                        icon: const Icon(Icons.clear,
+                                            color: const Color.fromRGBO(
+                                                69, 39, 160, 1)),
+                                        onPressed: () {
+                                          setState(() {
+                                            _emailController.clear();
+                                            _validateEmail('');
+                                          });
+                                        },
+                                      )
                                     : null,
                               ),
                             ),
@@ -266,23 +280,32 @@ class _AuthPageState extends State<AuthPage> {
                                 errorText: _passwordFieldError
                                     ? getTranslation('emptyFieldError')
                                     : null,
-                                prefixIcon: const Icon(Icons.lock, color: Colors.deepPurple),
+                                prefixIcon: const Icon(Icons.lock,
+                                    color:
+                                        const Color.fromRGBO(69, 39, 160, 1)),
                                 suffixIcon: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(right: 8.0), // Abstand zum rechten Rand
+                                      padding: const EdgeInsets.only(
+                                          right:
+                                              8.0), // Abstand zum rechten Rand
                                       child: IconButton(
                                         icon: Icon(
-                                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                                          color: Colors.deepPurple,
+                                          _isPasswordVisible
+                                              ? Icons.visibility
+                                              : Icons.visibility_off,
+                                          color: const Color.fromRGBO(
+                                              69, 39, 160, 1),
                                         ),
                                         onPressed: _togglePasswordVisibility,
                                       ),
                                     ),
                                     if (_passwordController.text.isNotEmpty)
                                       IconButton(
-                                        icon: const Icon(Icons.clear, color: Colors.deepPurple),
+                                        icon: const Icon(Icons.clear,
+                                            color: const Color.fromRGBO(
+                                                69, 39, 160, 1)),
                                         onPressed: () {
                                           setState(() {
                                             _passwordController.clear();
@@ -299,21 +322,25 @@ class _AuthPageState extends State<AuthPage> {
 
                             // Anmelden Button (gleiche Breite)
                             SizedBox(
-                              width: screenWidth > 500 ? 500 : screenWidth * 0.9,
+                              width:
+                                  screenWidth > 500 ? 500 : screenWidth * 0.9,
                               child: ElevatedButton(
                                 onPressed: _handleSignIn,
                                 child: _isSubmitting
-                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.white)
                                     : Text(
-                                  getTranslation('signIn'),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                        getTranslation('signIn'),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.deepPurple,
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
+                                  backgroundColor:
+                                      const Color.fromRGBO(69, 39, 160, 1),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 15),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15),
                                   ),
@@ -332,7 +359,8 @@ class _AuthPageState extends State<AuthPage> {
                         children: [
                           Text(
                             getTranslation('signUpMessage'),
-                            style: const TextStyle(color: Colors.grey, fontSize: 16),
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 16),
                           ),
                           TextButton(
                             onPressed: () {
@@ -344,7 +372,7 @@ class _AuthPageState extends State<AuthPage> {
                             child: Text(
                               getTranslation('signUp'),
                               style: const TextStyle(
-                                color: Colors.deepPurple,
+                                color: const Color.fromRGBO(69, 39, 160, 1),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -359,7 +387,8 @@ class _AuthPageState extends State<AuthPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           GestureDetector(
-                            onTap: () => setState(() => _currentLanguage = 'de'),
+                            onTap: () =>
+                                setState(() => _currentLanguage = 'de'),
                             child: Text(
                               'Deutsch',
                               style: TextStyle(
@@ -367,14 +396,16 @@ class _AuthPageState extends State<AuthPage> {
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                                 color: _currentLanguage == 'de'
-                                    ? Colors.deepPurple
+                                    ? const Color.fromRGBO(69, 39, 160, 1)
                                     : Colors.grey,
                               ),
                             ),
                           ),
-                          const Text(' | ', style: TextStyle(color: Colors.grey)),
+                          const Text(' | ',
+                              style: TextStyle(color: Colors.grey)),
                           GestureDetector(
-                            onTap: () => setState(() => _currentLanguage = 'en'),
+                            onTap: () =>
+                                setState(() => _currentLanguage = 'en'),
                             child: Text(
                               'English',
                               style: TextStyle(
@@ -382,7 +413,7 @@ class _AuthPageState extends State<AuthPage> {
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                                 color: _currentLanguage == 'en'
-                                    ? Colors.deepPurple
+                                    ? const Color.fromRGBO(69, 39, 160, 1)
                                     : Colors.grey,
                               ),
                             ),
@@ -399,5 +430,4 @@ class _AuthPageState extends State<AuthPage> {
       ),
     );
   }
-
 }

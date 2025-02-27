@@ -1,7 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
-  // Sign up
+
+  // Diese Methode wird verwendet, um sich zu registrieren
   Future<bool> signUp(String email, String password) async {
     try {
       final response = await Supabase.instance.client.auth.signUp(
@@ -21,7 +22,7 @@ class AuthService {
     }
   }
 
-  // Sign in
+  // Diese Methode wird verwendet, um sich anzumelden
   Future<bool> signIn(String email, String password) async {
     try {
       final response = await Supabase.instance.client.auth.signInWithPassword(
@@ -41,7 +42,7 @@ class AuthService {
     }
   }
 
-  // Sign out
+  // Diese Methode wird verwendet, um sich abzumelden
   Future<bool> signOut() async {
     try {
       await Supabase.instance.client.auth.signOut();
@@ -53,11 +54,12 @@ class AuthService {
     }
   }
 
-  // Get current user
+  // Diese Methode wird verwendet, um den aktuellen Benutzer zu erhalten
   User? getCurrentUser() {
     return Supabase.instance.client.auth.currentUser;
   }
 
+// Diese Methode wird verwendet, um die ID des aktuellen Benutzers zu erhalten
   String getCurrentUserId() {
     return Supabase.instance.client.auth.currentUser!.id;
   }

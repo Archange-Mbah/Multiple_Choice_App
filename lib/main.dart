@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:multiple_choice_trainer/pages/auth_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -38,6 +38,10 @@ dependencies:
   fl_chart: ^0.70.0
   tuple: ^2.0.0  # Überprüfe auf pub.dev für die neueste Version
   intl: ^0.18.0
+  image_picker: ^0.8.7+3  # Überprüfe für neuere Versionen unter pub.dev
+  path_provider: ^2.0.11
+ 
+
 
   
 
@@ -66,11 +70,19 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/study.webp
+    #- assets/study.webp
     - assets/robotTraurig.png
     - assets/happy_robot.png
     - assets/sad_robot.png
     - assets/neutral_robot.png
+    - assets/robot_set.png
+    - assets/nichts_da.png
+    - assets/avatars/avatar1.webp
+    - assets/avatars/avatar2.webp
+    - assets/avatars/avatar3.webp
+    - assets/avatars/default.jpg
+    
+
    
 
   # To add assets to your application, add an assets section, like this:

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:multiple_choice_trainer/models/learn_stats.dart';
+import 'package:multiple_choice_trainer/pages/modulePage_list.dart';
+import 'package:multiple_choice_trainer/pages/userProfile_page.dart';
 import 'package:multiple_choice_trainer/services/service.dart';
 import 'package:intl/intl.dart';
 
+// Diese Seite zeigt die Lernstatistiken des Benutzers an
 class StatisticsPage extends StatefulWidget {
   final String userId;
   final String initialLanguage;
@@ -18,6 +21,7 @@ class StatisticsPage extends StatefulWidget {
 class _StatisticsPageState extends State<StatisticsPage> {
   late Future<List<LearnStats>> _learnStatsFuture;
   late String currentLanguage;
+  int _currentIndex = 1; // Stelle sicher, dass Stats als aktiv markiert ist
 
   @override
   void initState() {
@@ -26,18 +30,39 @@ class _StatisticsPageState extends State<StatisticsPage> {
     _learnStatsFuture = SupabaseService().getLearnStatsForUser(widget.userId);
   }
 
+//hier wird die navigation zur home seite gemacht
+  void _navigateToHomeScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ModulPage(language: currentLanguage)),
+    );
+  }
+//hier wird die navigation zur user seite gemacht
+  void _navigateToUserPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => UserProfilePage(
+                language: currentLanguage,
+              )),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           currentLanguage == 'de' ? 'Lernverlauf' : 'Learning Progress',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: Colors.deepPurple,
+            fontSize: 30,
+            color: Colors.white,
           ),
         ),
+        backgroundColor: const Color.fromRGBO(69, 39, 160, 1),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -50,10 +75,26 @@ class _StatisticsPageState extends State<StatisticsPage> {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Center(
-                child: Text(
-                  currentLanguage == 'de'
-                      ? 'Kein Lernverlauf verfügbar.'
-                      : 'No learning progress available.',
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset(
+                      'assets/nichts_da.png', // Stelle sicher, dass dieses Bild im assets Verzeichnis vorhanden ist
+                      width: 200,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text(
+                        currentLanguage == 'de'
+                            ? 'Kein Lernverlauf verfügbar.'
+                            : 'No learning progress available.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               );
             }
@@ -72,15 +113,38 @@ class _StatisticsPageState extends State<StatisticsPage> {
           },
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 1,
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          if (index == 0) {
+            _navigateToHomeScreen();
+          } else if (index == 2) {
+            _navigateToUserPage();
+          }
+          // Nichts tun, wenn der aktuelle Index bereits '1' für Statistiken ist
+          if (index != 1) {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Stats'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+        ],
+      ),
     );
   }
 
   Map<String, List<LearnStats>> _groupStatsByDate(List<LearnStats> stats) {
     final Map<String, List<LearnStats>> groupedStats = {};
+
     for (var stat in stats) {
-      // Konvertiere stat.createdAt (String) in DateTime
       final dateTime = _parseDate(stat.createdAt);
-      final dateKey = _formatDateOnly(dateTime); // DateTime an _formatDateOnly übergeben
+      final dateKey = _formatDateOnly(dateTime);
 
       if (!groupedStats.containsKey(dateKey)) {
         groupedStats[dateKey] = [];
@@ -90,13 +154,22 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
     final sortedKeys = groupedStats.keys.toList()
       ..sort((a, b) {
-        final dateA = _parseDate(a); // Konvertiere Key zurück zu DateTime
+        final dateA = _parseDate(a);
         final dateB = _parseDate(b);
-        return dateB.compareTo(dateA);
+        return dateB.compareTo(dateA); // Sortiere die Keys (Datum) absteigend
       });
+
+    for (var key in groupedStats.keys) {
+      groupedStats[key]!.sort((a, b) {
+        final dateA = _parseDate(a.createdAt);
+        final dateB = _parseDate(b.createdAt);
+        return dateB.compareTo(
+            dateA); // Sortiere die Module innerhalb jedes Datums absteigend
+      });
+    }
+
     return {for (var key in sortedKeys) key: groupedStats[key]!};
   }
-
 
   Widget _buildExpandableCard(String date, List<LearnStats> statsForDate) {
     bool isExpanded = false;
@@ -118,13 +191,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Colors.deepPurple,
+                        color: const Color.fromRGBO(69, 39, 160, 1),
                       ),
                     ),
                     IconButton(
                       icon: Icon(
                         isExpanded ? Icons.expand_less : Icons.expand_more,
-                        color: Colors.deepPurple,
+                        color: const Color.fromRGBO(69, 39, 160, 1),
                       ),
                       onPressed: () {
                         setState(() {
@@ -161,7 +234,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: Colors.deepPurple,
+              color: const Color.fromRGBO(69, 39, 160, 1),
             ),
           ),
           _buildStatRow(
@@ -198,7 +271,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,
-              color: Colors.deepPurple,
+              color: const Color.fromRGBO(69, 39, 160, 1),
             ),
           ),
           SizedBox(width: 8),
@@ -237,15 +310,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
     }
     if (date is String) {
       try {
-        return DateTime.parse(date); // Versuche, den String als ISO-8601 zu parsen
+        return DateTime.parse(
+            date); // Versuche, den String als ISO-8601 zu parsen
       } catch (_) {
         final inputFormat = DateFormat('dd.MM.yyyy');
-        return inputFormat.parse(date); // Falls das nicht funktioniert, verwende benutzerdefiniertes Format
+        return inputFormat.parse(
+            date); // Falls das nicht funktioniert, verwende benutzerdefiniertes Format
       }
     }
     throw ArgumentError('Unsupported date format: $date');
   }
-
 
   Color _getPerformanceColor(LearnStats stats) {
     double scorePercentage = double.tryParse(stats.score) ?? 0;

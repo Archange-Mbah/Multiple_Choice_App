@@ -6,6 +6,9 @@ import 'package:multiple_choice_trainer/models/user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/flash_card.dart';
 import 'package:tuple/tuple.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'dart:typed_data';
 
 class SupabaseService {
   // It's better to move the URL and Key to environment variables or configuration files
@@ -56,7 +59,8 @@ class SupabaseService {
           .select('flashcard_id')
           .eq('user_id', userId) // Nur Flashcards für den spezifischen Benutzer
           .eq('module_id', moduleId) // Nur Flashcards für das spezifische Modul
-          .eq('correct_count', 6); // Flashcards, die 6 Mal korrekt beantwortet wurden
+          .eq('correct_count',
+              6); // Flashcards, die 6 Mal korrekt beantwortet wurden
 
       // Schritt 3: Hole alle Flashcard IDs, die bereits 6 Mal korrekt beantwortet wurden
       Set<int> answeredFlashcardsIds = <int>{};
@@ -99,8 +103,8 @@ class SupabaseService {
   //update the flashcard stats after the user answers a flashcard
   Future<void> updateFlashcardStats(
       String userId, String flashcardId, bool isCorrect, String module) async {
-        print(flashcardId);
-        print(userId);
+    print(flashcardId);
+    print(userId);
     try {
       // Step 1: Reference the flashcard stats table
       final response = await _client
@@ -108,7 +112,7 @@ class SupabaseService {
           .select()
           .eq('user_id', userId)
           .eq('flashcard_id', flashcardId);
-        print(response);
+      print(response);
       if (response.isEmpty) {
         // Step 2: If the user has not answered the flashcard before, insert a new record
         await _client.from('flashcard_stats').insert([
@@ -153,7 +157,7 @@ class SupabaseService {
               .eq('flashcard_id', flashcardId)
               .eq('module_id', module); // Ensure the correct module is used
         }
-        print("I was hier"); 
+        print("I was hier");
       }
     } catch (e) {
       throw Exception('Error updating flashcard stats: $e');
@@ -185,6 +189,7 @@ class SupabaseService {
       throw Exception('Error including learn round: $e');
     }
   }
+
   //delete the learn round stats for a specific user and module
   Future<void> deleteLearnRoundStats(String userId, int moduleId) async {
     try {
@@ -198,8 +203,9 @@ class SupabaseService {
       throw Exception('Error deleting learn round stats: $e');
     }
   }
+
   //delete the flashcard stats for a specific user and flashcard
-  Future <void> deleteFlashcardStats(String userId, int moduleId) async {
+  Future<void> deleteFlashcardStats(String userId, int moduleId) async {
     try {
       // Step 1: Delete all flashcard stats for the user and module
       await _client
@@ -207,16 +213,15 @@ class SupabaseService {
           .delete()
           .eq('user_id', userId)
           .eq('module_id', moduleId);
-          print("I was hier");
-          print (userId);
-          print (moduleId);
+      print("I was hier");
+      print(userId);
+      print(moduleId);
     } catch (e) {
       throw Exception('Error deleting flashcard stats: $e');
     }
   }
 
-
-//get lern stats for the user for a specific module
+//get lernstats for the user for a specific module
   Future<List<Map<String, dynamic>>> getLearnStats(
       String userId, String moduleId) async {
     try {
@@ -301,7 +306,7 @@ class SupabaseService {
       throw Exception('Error getting module name: $e');
     }
   }
-
+//get the user details for a specific user ID and convert them to a UserRepresenter object
   Future<UserRepresenter> getCurrentUserRepresentation(String userId) async {
     try {
       // Step 1: Get the user details for the given user ID
@@ -424,6 +429,7 @@ class SupabaseService {
     }
   }
 
+ // Berechnet die allgemeinen Modulstatistiken für einen Benutzer
   Future<Map<String, dynamic>> calculateModuleStatistics(
       String userId, int moduleId) async {
     try {
@@ -470,6 +476,7 @@ class SupabaseService {
     }
   }
 
+// Holt die Lernstatistiken für ein Modul
   Future<List<LearnStats>> getLearnStatsForModule(
       String userId, String moduleId) async {
     try {
@@ -512,6 +519,17 @@ class SupabaseService {
     } catch (e) {
       print('Exception caught: $e');
       throw Exception('Error fetching learn stats for module: $e');
+    }
+  }
+
+  Future<void> updateUserAvatar(String userId, String avatarName) async {
+    try {
+      await _client.from('users').update({
+        'avatar': avatarName, // Speichert den Bildnamen
+      }).eq('userIds', userId);
+      print('Avatar-Name erfolgreich gespeichert!');
+    } catch (e) {
+      throw Exception('Fehler beim Speichern des Avatars: $e');
     }
   }
 }

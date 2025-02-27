@@ -36,6 +36,9 @@ class _QuestionViewState extends State<QuestionView> {
   void initState() {
     super.initState();
     language = widget.language;
+    widget.flashcards.forEach((flashcard) {
+      flashcard.answers.shuffle(); // Antworten durcheinander bringen
+    });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _elapsedTime++;
@@ -111,6 +114,8 @@ class _QuestionViewState extends State<QuestionView> {
         //checkAnswers(); // Antworten überprüfen
         //print("I was here");
         currentFlashcardIndex++; // Nächste Frage anzeigen
+        widget.flashcards[currentFlashcardIndex].answers
+            .shuffle(); // Antworten mischen
         selectedAnswerIds.clear(); // Auswahl zurücksetzen
         showFeedback = false; // Feedback deaktivieren
       });
@@ -136,21 +141,13 @@ class _QuestionViewState extends State<QuestionView> {
     int totalQuestions = widget.flashcards.length;
     double scorePercentage = (correctQuestionsCount / totalQuestions) * 100;
 
-    String performanceLevel;
     if (scorePercentage >= 81) {
-      performanceLevel = language == "de" ? "🔥 Wissensmeister" : "🔥expert";
       imagePath = 'assets/happy_robot.png';
     } else if (scorePercentage >= 61) {
-      performanceLevel = language == "de" ? "🧠 Wissenssammler" : "🧠Goood";
       imagePath = 'assets/neutral_robot.png';
     } else if (scorePercentage >= 41) {
-      performanceLevel = language == "de"
-          ? "🌱 Fortschreitender Lernender"
-          : "🌱you can do better";
       imagePath = 'assets/neutral_robot.png';
     } else {
-      performanceLevel =
-          language == "de" ? "🐣 Neuling" : "🐣you will do it next time";
       imagePath = 'assets/sad_robot.png';
     }
 
@@ -158,90 +155,124 @@ class _QuestionViewState extends State<QuestionView> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: language == "de"
-            ? const Text("Quiz abgeschlossen", style: TextStyle(fontSize: 24))
-            : const Text("Quiz completed", style: TextStyle(fontSize: 24)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              imagePath, // Bild des Roboters basierend auf dem Ergebnis
-              width: 150,
-              height: 150,
-            ),
-            Text(
-              language == "de"
-                  ? "Du hast $correctQuestionsCount von $totalQuestions Fragen vollständig korrekt beantwortet."
-                  : "You have answered $correctQuestionsCount out of $totalQuestions questions completely correctly.",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            language == "de"
-                ? Text(
-                    "Deine Punktzahl: ${scorePercentage.toStringAsFixed(1)}%",
-                    style: const TextStyle(fontSize: 18),
-                  )
-                : Text(
-                    "Your score: ${scorePercentage.toStringAsFixed(1)}%",
-                    style: const TextStyle(fontSize: 18),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            double maxHeight = constraints.maxHeight * 0.5; // max. 80% der Höhe
+            double maxWidth = constraints.maxWidth * 0.6; // max. 90% der Breite
+
+            return Container(
+              padding: const EdgeInsets.all(14),
+              constraints: BoxConstraints(
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Image.asset(
+                      imagePath,
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-            const SizedBox(height: 10),
-            language == "de"
-                ? Text(
-                    "Rang: $performanceLevel",
+                  const SizedBox(height: 16),
+                  Text(
+                    language == "de" ? "Quiz abgeschlossen" : "Quiz completed",
                     style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold),
-                  )
-                : Text(
-                    "Rank: $performanceLevel",
-                    style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: const Color.fromRGBO(69, 39, 160, 1),
+                    ),
                   ),
-            const SizedBox(height: 10),
-            language == "de"
-                ? Text(
-                    "Gesamtzeit: $totalTime",
+                  const SizedBox(height: 10),
+                  Text(
+                    language == "de"
+                        ? "Du hast $correctQuestionsCount von $totalQuestions Fragen vollständig korrekt beantwortet."
+                        : "You answered $correctQuestionsCount out of $totalQuestions questions correctly.",
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  )
-                : Text(
-                    "Total time: $totalTime",
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ModulPage(language: language),
+                  const SizedBox(height: 10),
+                  Text(
+                    language == "de"
+                        ? "Deine Punktzahl: ${scorePercentage.toStringAsFixed(0)}%"
+                        : "Your score: ${scorePercentage.toStringAsFixed(0)}%",
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    language == "de"
+                        ? "Gesamtzeit: $totalTime"
+                        : "Total time: $totalTime",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey.shade300,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 14),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ModulPage(language: language),
+                            ),
+                            (Route<dynamic> route) => false,
+                          );
+                        },
+                        child: Text(
+                          language == "de" ? "Beenden" : "End",
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ),
-                      (Route<dynamic> route) => false,
-                    );
-                  },
-                  child: language == "de"
-                      ? const Text("Beenden")
-                      : const Text("End"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
-                  child: language == "de"
-                      ? const Text("Neue Runde")
-                      : const Text("New Round"),
-                ),
-              ],
-            ),
-          ],
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromRGBO(69, 39, 160, 1),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 14),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          language == "de" ? "Neue Runde" : "New Round",
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
@@ -254,210 +285,379 @@ class _QuestionViewState extends State<QuestionView> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: language == "de"
-            ? const Text("Lernmodus")
-            : const Text("Learning Mode"),
+        backgroundColor: const Color.fromRGBO(69, 39, 160, 1),
+        title: Text(
+          language == "de" ? "Lernmodus" : "Learning Mode",
+          style: const TextStyle(
+              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        elevation: 4,
       ),
-      body: Column(
-        children: [
-          LinearProgressIndicator(
-            value: (currentFlashcardIndex + 1) / widget.flashcards.length,
-            color: Colors.blue,
-            backgroundColor: Colors.grey[300],
-          ),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.timer, // Timer-Icon
-                  size: 20,
-                ),
-                const SizedBox(width: 8), // Abstand zwischen Icon und Text
-                Text(
-                  language == "de"
-                      ? "Verstrichene Zeit: ${_formatTime(_elapsedTime)}"
-                      : "Elapsed Time: ${_formatTime(_elapsedTime)}",
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              language == "de"
-                  ? "Frage ${currentFlashcardIndex + 1}/${widget.flashcards.length}"
-                  : "Question ${currentFlashcardIndex + 1}/${widget.flashcards.length}",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              currentFlashcard.question,
-              style: const TextStyle(fontSize: 18),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView.builder(
-              itemCount: currentFlashcard.answers.length,
-              itemBuilder: (context, index) {
-                final answer = currentFlashcard.answers[index];
-                final isSelected = selectedAnswerIds.contains(answer.id);
-                final isCorrect = answer.correct;
-
-                return Card(
-                  color: showFeedback
-                      ? (isCorrect
-                          ? (isSelected ? Colors.green[100] : Colors.green[50])
-                          : (isSelected ? Colors.red[100] : Colors.white))
-                      : (isSelected ? Colors.blue[50] : Colors.white),
-                  child: ListTile(
-                    title: Text(
-                      answer.answerText,
-                      style: TextStyle(
-                        color: showFeedback
-                            ? (isCorrect ? Colors.green : Colors.red)
-                            : (isSelected ? Colors.blue : Colors.black),
-                      ),
-                    ),
-                    trailing: showFeedback
-                        ? (isCorrect
-                            ? const Icon(Icons.check_circle,
-                                color: Colors.green)
-                            : (isSelected
-                                ? const Icon(Icons.cancel, color: Colors.red)
-                                : null))
-                        : null,
-                    onTap: !showFeedback
-                        ? () => toggleAnswerSelection(answer.id)
-                        : null,
-                  ),
-                );
-              },
-            ),
-          ),
-          // „Überprüfen“ / „Weiter“-Button direkt unter der Frage
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: !_timer.isActive
-                    ? null
-                    : selectedAnswerIds.isNotEmpty
-                        ? (showFeedback ? goToNextQuestion : checkAnswers)
-                        : null,
-                child: language == "de"
-                    ? Text(showFeedback ? "Weiter" : "Überprüfen")
-                    : Text(showFeedback ? "Next" : "Check"),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Progress Indicator
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: LinearProgressIndicator(
+                value: (currentFlashcardIndex + 1) / widget.flashcards.length,
+                backgroundColor: Colors.purple.shade50,
+                valueColor: AlwaysStoppedAnimation(
+                    const Color.fromRGBO(69, 39, 160, 1)!),
               ),
             ),
-          ),
-          // Pausieren- und Abbrechen-Buttons unten
-          Padding(
-            padding: const EdgeInsets.all(16.0), // Abstand zum Rand
-            child: Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceEvenly, // Buttons nebeneinander
-              children: [
-                // Pausieren-Button mit Tooltip
-                Tooltip(
-                  message: _timer.isActive
-                      ? 'Pausieren aktivieren'
-                      : 'Pausieren deaktivieren',
-                  child: IconButton(
-                    icon:
-                        Icon(_timer.isActive ? Icons.pause : Icons.play_arrow),
-                    onPressed: () {
-                      setState(() {
+
+            // Elapsed Time Display
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.access_time,
+                      color: const Color.fromRGBO(69, 39, 160, 1), size: 24),
+                  const SizedBox(width: 8),
+                  Text(
+                    language == "de"
+                        ? "Verstrichene Zeit: ${_formatTime(_elapsedTime)}"
+                        : "Elapsed Time: ${_formatTime(_elapsedTime)}",
+                    style: const TextStyle(
+                        fontSize: 16,
+                        color: const Color.fromRGBO(69, 39, 160, 1),
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+
+            // Current Flashcard Index Display
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Text(
+                language == "de"
+                    ? "Frage ${currentFlashcardIndex + 1}/${widget.flashcards.length}"
+                    : "Question ${currentFlashcardIndex + 1}/${widget.flashcards.length}",
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromRGBO(69, 39, 160, 1)),
+              ),
+            ),
+
+            // Flashcard Question Text
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Text(
+                currentFlashcard.question,
+                style: const TextStyle(
+                    fontSize: 18,
+                    color: const Color.fromRGBO(69, 39, 160, 1),
+                    fontWeight: FontWeight.w500),
+              ),
+            ),
+
+            // Answers List
+            Expanded(
+              child: Column(
+                children: [
+                  // Spacing für Flexibilität der Inhalte
+                  for (var answer in currentFlashcard.answers)
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4.0),
+                        decoration: BoxDecoration(
+                          color: showFeedback
+                              ? (answer.correct
+                                  ? (selectedAnswerIds.contains(answer.id)
+                                      ? Colors.green[100]
+                                      : Colors.green[50])
+                                  : (selectedAnswerIds.contains(answer.id)
+                                      ? Colors.red[100]
+                                      : Colors.white))
+                              : (selectedAnswerIds.contains(answer.id)
+                                  ? Colors.deepPurple.shade50
+                                  : Colors.white),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(2, 2),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 16.0),
+                          title: Text(
+                            answer.answerText,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: showFeedback
+                                  ? (answer.correct ? Colors.green : Colors.red)
+                                  : (selectedAnswerIds.contains(answer.id)
+                                      ? Colors.deepPurple
+                                      : Colors.black),
+                            ),
+                            textAlign:
+                                TextAlign.left, // Text bleibt linksbündig
+                          ),
+                          trailing: showFeedback
+                              ? (answer.correct
+                                  ? const Icon(Icons.check_circle,
+                                      color: Colors.green)
+                                  : (selectedAnswerIds.contains(answer.id)
+                                      ? const Icon(Icons.cancel,
+                                          color: Colors.red)
+                                      : null))
+                              : null,
+                          onTap: !showFeedback
+                              ? () => toggleAnswerSelection(answer.id)
+                              : null,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            // Action Button (Next or Check)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: !_timer.isActive
+                      ? null
+                      : selectedAnswerIds.isNotEmpty
+                          ? (showFeedback ? goToNextQuestion : checkAnswers)
+                          : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(69, 39, 160, 1),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    elevation: 6,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 24),
+                  ),
+                  child: language == "de"
+                      ? Text(showFeedback ? "Weiter" : "Überprüfen",
+                          style: const TextStyle(color: Colors.white))
+                      : Text(showFeedback ? "Next" : "Check",
+                          style: const TextStyle(color: Colors.white)),
+                ),
+              ),
+            ),
+
+            // Pause/Play & Cancel Buttons
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Tooltip(
+                    message: _timer.isActive
+                        ? 'Pausieren aktivieren'
+                        : 'Pausieren deaktivieren',
+                    child: IconButton(
+                      icon: Icon(
+                        _timer.isActive ? Icons.pause : Icons.play_arrow,
+                        color: const Color.fromRGBO(69, 39, 160, 1),
+                        size: 28,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          if (_timer.isActive) {
+                            _timer.cancel();
+                            _showTemporaryMessage(language == "de"
+                                ? "Lernrunde pausiert"
+                                : "Learning round paused");
+                          } else {
+                            _timer = Timer.periodic(const Duration(seconds: 1),
+                                (timer) {
+                              setState(() {
+                                _elapsedTime++;
+                              });
+                            });
+                            _showTemporaryMessage(language == "de"
+                                ? "Lernrunde wird fortgesetzt"
+                                : "Learning round resumed");
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  Tooltip(
+                    message: language == "de" ? 'Abbrechen' : 'Cancel',
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.exit_to_app,
+                        color: const Color.fromRGBO(69, 39, 160, 1),
+                        size: 24,
+                      ),
+                      onPressed: () async {
+                        bool wasPaused = !_timer.isActive;
                         if (_timer.isActive) {
                           _timer.cancel();
-                        } else {
-                          _timer = Timer.periodic(const Duration(seconds: 1),
-                              (timer) {
-                            setState(() {
-                              _elapsedTime++;
-                            });
-                          });
                         }
-                      });
-                    },
-                  ),
-                ),
-                // Abbrechen-Button mit Tooltip
-                Tooltip(
-                  message: language == "de" ? 'Abbrechen' : 'Cancel',
-                  child: IconButton(
-                    icon: Icon(Icons.exit_to_app),
-                    onPressed: () async {
-                      bool wasPaused = !_timer.isActive;
-                      if (_timer.isActive) {
-                        _timer.cancel();
-                      }
 
-                      bool? confirmExit = await showDialog<bool>(
-                        context: context,
-                        barrierDismissible:
-                            false, // Verhindert das Schließen durch Tippen außerhalb des Dialogs
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: language == "de"
-                                ? const Text("Lernrunde abbrechen")
-                                : const Text("Cancel learning round"),
-                            content: language == "de"
-                                ? const Text(
-                                    "Möchten Sie die Lernrunde wirklich abbrechen?")
-                                : const Text(
-                                    "Do you really want to cancel the learning round?"),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context, false);
-                                },
-                                child: language == "de"
-                                    ? const Text("Nein")
-                                    : const Text("No"),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context, true);
-                                },
-                                child: language == "de"
-                                    ? const Text("Ja")
-                                    : const Text("Yes"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                        bool? confirmExit = await showDialog<bool>(
+                          context: context,
+                          barrierDismissible:
+                              false, // Dialog nicht schließen durch Tippen außerhalb
+                          builder: (BuildContext context) {
+                            final mediaWidth =
+                                MediaQuery.of(context).size.width;
 
-                      if (confirmExit == null || confirmExit == false) {
-                        if (!wasPaused) {
-                          _timer = Timer.periodic(const Duration(seconds: 1),
-                              (timer) {
-                            setState(() {
-                              _elapsedTime++;
-                            });
-                          });
-                        }
-                      } else {
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                            builder: (context) => ModulPage(language: 'de'),
-                          ),
-                          (route) => false,
+                            return Dialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    16), // Runde Ecken des Dialogs
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                width: mediaWidth *
+                                    0.7, // 70% der Bildschirmbreite
+
+                                decoration: BoxDecoration(
+                                  color: Colors.grey
+                                      .shade100, // Hintergrundfarbe des Dialogs
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26, // Schattenfarbe
+                                      blurRadius: 10,
+                                      offset: const Offset(2, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.warning_amber_rounded,
+                                      color: Colors.deepPurple, // Iconfarbe
+                                      size: mediaWidth *
+                                          0.1, // 10% der Bildschirmbreite
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      language == "de"
+                                          ? "Möchten Sie die Lernrunde wirklich abbrechen?"
+                                          : "Do you really want to cancel the learning round?",
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color.fromRGBO(
+                                            69, 39, 160, 1),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Flexible(
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 10),
+                                              //backgroundColor: Colors.white,
+                                              backgroundColor:
+                                                  Colors.deepPurple.shade50,
+                                              foregroundColor:
+                                                  Colors.deepPurple,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.pop(context, false);
+                                            },
+                                            child: Text(
+                                              language == "de" ? "Nein" : "No",
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Flexible(
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors
+                                                  .deepPurple, // Lila für "Ja"
+                                              foregroundColor: Colors.white,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 10),
+
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.pop(context, true);
+                                            },
+                                            child: Text(
+                                              language == "de" ? "Ja" : "Yes",
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         );
-                      }
-                    },
+
+                        if (confirmExit == true) {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ModulPage(language: language),
+                            ),
+                            (route) => false,
+                          );
+                        } else {
+                          if (!wasPaused) {
+                            _timer = Timer.periodic(const Duration(seconds: 1),
+                                (timer) {
+                              setState(() {
+                                _elapsedTime++;
+                              });
+                            });
+                          }
+                        }
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+// Funktion für temporäre Nachrichten
+  void _showTemporaryMessage(String message) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text(message, textAlign: TextAlign.center),
+        duration: const Duration(seconds: 1),
       ),
     );
   }

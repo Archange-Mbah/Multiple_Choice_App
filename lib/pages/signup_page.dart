@@ -18,7 +18,8 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _emailFieldError = false;
   bool _passwordFieldError = false;
   bool _isGerman = true; // Sprachwahl
-  bool _isTypingPassword = false; // Zeigt an, ob der Benutzer im Passwortfeld tippt
+  bool _isTypingPassword =
+      false; // Zeigt an, ob der Benutzer im Passwortfeld tippt
 
   // Status der Passwortanforderungen
   bool _hasUppercase = false;
@@ -30,11 +31,13 @@ class _SignUpPageState extends State<SignUpPage> {
   // Überprüfung der Passwortanforderungen
   void _validatePassword(String value) {
     setState(() {
-      _isTypingPassword = true; // Anforderungen werden direkt angezeigt, sobald das Feld fokussiert ist
+      _isTypingPassword =
+          true; // Anforderungen werden direkt angezeigt, sobald das Feld fokussiert ist
       _hasUppercase = value.contains(RegExp(r'[A-Z]'));
       _hasLowercase = value.contains(RegExp(r'[a-z]'));
       _hasNumber = value.contains(RegExp(r'[0-9]'));
-      _hasSpecialCharacter = value.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>\[\]\\/\-_+=;~`]'));
+      _hasSpecialCharacter =
+          value.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>\[\]\\/\-_+=;~`]'));
       _hasMinLength = value.length >= 8;
     });
   }
@@ -111,27 +114,32 @@ class _SignUpPageState extends State<SignUpPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.purple.shade50, // Background color
+      backgroundColor:
+          const Color.fromARGB(255, 238, 233, 244), // Background color
       body: Column(
         children: [
-
           // Fester Bereich oben für Überschrift
           AppBar(
-            automaticallyImplyLeading: false, // Verhindert das Anzeigen des Zurückpfeils
+            automaticallyImplyLeading:
+                false, // Verhindert das Anzeigen des Zurückpfeils
             title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const Icon(Icons.school, color: Colors.white, size: 40),
+                const Icon(Icons.school, color: Colors.white, size: 30),
                 const SizedBox(width: 8),
                 Text(
-                  _isGerman ? 'Multiple Choice Trainer' : 'Multiple Choice Trainer',
-                  style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
+                  _isGerman
+                      ? 'Multiple Choice Trainer'
+                      : 'Multiple Choice Trainer',
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ],
             ),
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: const Color.fromRGBO(69, 39, 160, 1),
           ),
-
 
           const SizedBox(height: 80),
 
@@ -149,12 +157,14 @@ class _SignUpPageState extends State<SignUpPage> {
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
+                        color: const Color.fromRGBO(69, 39, 160, 1),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _isGerman ? 'Erstellen Sie ein neues Konto' : 'Create a new account',
+                      _isGerman
+                          ? 'Erstellen Sie ein neues Konto'
+                          : 'Create a new account',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 16,
@@ -162,7 +172,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
-
                     Container(
                       width: screenWidth > 500 ? 500 : screenWidth * 0.9,
                       child: Column(
@@ -179,24 +188,27 @@ class _SignUpPageState extends State<SignUpPage> {
                               fillColor: Colors.white,
                               errorText: _emailFieldError
                                   ? (_isGerman
-                                  ? 'Bitte geben Sie eine gültige E-Mail ein'
-                                  : 'Please enter a valid email')
+                                      ? 'Bitte geben Sie eine gültige E-Mail ein'
+                                      : 'Please enter a valid email')
                                   : null,
-                              prefixIcon:
-                              const Icon(Icons.email, color: Colors.deepPurple),
+                              prefixIcon: const Icon(Icons.email,
+                                  color: const Color.fromRGBO(69, 39, 160, 1)),
                               suffixIcon: _emailController.text.isNotEmpty
                                   ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.deepPurple),
-                                onPressed: () {
-                                  setState(() {
-                                    _emailController.clear();
-                                    _checkEmailField();
-                                  });
-                                },
-                              )
+                                      icon: const Icon(Icons.clear,
+                                          color: const Color.fromRGBO(
+                                              69, 39, 160, 1)),
+                                      onPressed: () {
+                                        setState(() {
+                                          _emailController.clear();
+                                          _checkEmailField();
+                                        });
+                                      },
+                                    )
                                   : null,
                             ),
-                            onSubmitted: (_) => _handleSignUp(), // Enter aktiviert Registrierung
+                            onSubmitted: (_) =>
+                                _handleSignUp(), // Enter aktiviert Registrierung
                           ),
                           const SizedBox(height: 20),
 
@@ -212,11 +224,11 @@ class _SignUpPageState extends State<SignUpPage> {
                               fillColor: Colors.white,
                               errorText: _passwordFieldError
                                   ? (_isGerman
-                                  ? 'Passwort erfüllt nicht die Anforderungen'
-                                  : 'Password does not meet the requirements')
+                                      ? 'Passwort erfüllt nicht die Anforderungen'
+                                      : 'Password does not meet the requirements')
                                   : null,
-                              prefixIcon:
-                              const Icon(Icons.lock, color: Colors.deepPurple),
+                              prefixIcon: const Icon(Icons.lock,
+                                  color: const Color.fromRGBO(69, 39, 160, 1)),
                               suffixIcon: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -225,13 +237,16 @@ class _SignUpPageState extends State<SignUpPage> {
                                       _isPasswordVisible
                                           ? Icons.visibility
                                           : Icons.visibility_off,
-                                      color: Colors.deepPurple,
+                                      color:
+                                          const Color.fromRGBO(69, 39, 160, 1),
                                     ),
                                     onPressed: _togglePasswordVisibility,
                                   ),
                                   if (_passwordController.text.isNotEmpty)
                                     IconButton(
-                                      icon: const Icon(Icons.clear, color: Colors.deepPurple),
+                                      icon: const Icon(Icons.clear,
+                                          color: const Color.fromRGBO(
+                                              69, 39, 160, 1)),
                                       onPressed: () {
                                         setState(() {
                                           _passwordController.clear();
@@ -243,8 +258,10 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ),
                             obscureText: !_isPasswordVisible,
-                            onTap: () => _validatePassword(_passwordController.text), // Anforderungen erscheinen beim Klick
-                            onSubmitted: (_) => _handleSignUp(), // Enter aktiviert Registrierung
+                            onTap: () => _validatePassword(_passwordController
+                                .text), // Anforderungen erscheinen beim Klick
+                            onSubmitted: (_) =>
+                                _handleSignUp(), // Enter aktiviert Registrierung
                           ),
                           const SizedBox(height: 30),
 
@@ -253,10 +270,14 @@ class _SignUpPageState extends State<SignUpPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildRequirementItem(
-                                    _isGerman ? 'Großbuchstabe' : 'Uppercase letter',
+                                    _isGerman
+                                        ? 'Großbuchstabe'
+                                        : 'Uppercase letter',
                                     _hasUppercase),
                                 _buildRequirementItem(
-                                    _isGerman ? 'Kleinbuchstabe' : 'Lowercase letter',
+                                    _isGerman
+                                        ? 'Kleinbuchstabe'
+                                        : 'Lowercase letter',
                                     _hasLowercase),
                                 _buildRequirementItem(
                                     _isGerman ? 'Zahl' : 'Number', _hasNumber),
@@ -279,16 +300,19 @@ class _SignUpPageState extends State<SignUpPage> {
                             child: ElevatedButton(
                               onPressed: _handleSignUp,
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 15),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 15),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15),
                                 ),
-                                backgroundColor: Colors.deepPurple,
+                                backgroundColor:
+                                    const Color.fromRGBO(69, 39, 160, 1),
                               ),
                               child: Text(
                                 _isGerman ? 'Registrieren' : 'Sign Up',
                                 style: const TextStyle(
-                                    color: Colors.white, fontWeight: FontWeight.bold),
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
@@ -301,8 +325,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                 _isGerman
                                     ? 'Haben Sie ein Konto? '
                                     : 'Have an account? ',
-                                style:
-                                const TextStyle(color: Colors.grey, fontSize: 16),
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 16),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -314,7 +338,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: Text(
                                   _isGerman ? 'Anmelden' : ' Sign in',
                                   style: const TextStyle(
-                                    color: Colors.deepPurple,
+                                    color: const Color.fromRGBO(69, 39, 160, 1),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -322,7 +346,8 @@ class _SignUpPageState extends State<SignUpPage> {
                             ],
                           ),
 
-                          const SizedBox(height: 30), // Abstand zu Sprachumschalter
+                          const SizedBox(
+                              height: 30), // Abstand zu Sprachumschalter
 
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -335,11 +360,14 @@ class _SignUpPageState extends State<SignUpPage> {
                                     fontWeight: _isGerman
                                         ? FontWeight.bold
                                         : FontWeight.normal,
-                                    color: _isGerman ? Colors.deepPurple : Colors.grey,
+                                    color: _isGerman
+                                        ? const Color.fromRGBO(69, 39, 160, 1)
+                                        : Colors.grey,
                                   ),
                                 ),
                               ),
-                              const Text(' | ', style: TextStyle(color: Colors.grey)),
+                              const Text(' | ',
+                                  style: TextStyle(color: Colors.grey)),
                               GestureDetector(
                                 onTap: () => setState(() => _isGerman = false),
                                 child: Text(
@@ -348,7 +376,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     fontWeight: !_isGerman
                                         ? FontWeight.bold
                                         : FontWeight.normal,
-                                    color: !_isGerman ? Colors.deepPurple : Colors.grey,
+                                    color: !_isGerman
+                                        ? const Color.fromRGBO(69, 39, 160, 1)
+                                        : Colors.grey,
                                   ),
                                 ),
                               ),
