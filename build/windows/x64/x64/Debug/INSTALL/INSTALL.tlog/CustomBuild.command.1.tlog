@@ -1,0 +1,10 @@
+^E:\SCHOOL\5\CROSS-PLATFORM-DEVELOPMENT\MC-TRAINER-AL-AJI\MULTIPLE_CHOICE_TRAINER\BUILD\WINDOWS\X64\CMAKEFILES\B191C33AF865B63F69B867DF75EC544A\INSTALL_FORCE.RULE
+setlocal
+cd .
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
